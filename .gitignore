@@ -1,0 +1,42 @@
+# Terraform: state can contain secrets and resource IDs
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl.bak
+crash.log
+*.tfvars
+!example.tfvars
+*.tfplan
+
+# Credentials and keys
+.aws/
+*.pem
+*.key
+*.ppk
+.env
+*.env
+credentials*
+*accessKeys*.csv
+
+# Wazuh install secrets
+wazuh-install-files.tar
+wazuh-passwords.txt
+
+# Lambda build artifacts
+*.zip
+lambda/**/package/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Generated data and raw evidence (hashes go in reports, raw files stay local)
+data/
+evidence/raw/
+
+# OS / editor
+.vscode/
+Thumbs.db
+desktop.ini
