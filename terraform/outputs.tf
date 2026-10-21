@@ -34,6 +34,14 @@ output "alerts_topic_arn" {
   value = aws_sns_topic.alerts.arn
 }
 
+output "trail_name" {
+  value = local.trail_name
+}
+
+output "trail_bucket" {
+  value = aws_s3_bucket.trail.id
+}
+
 output "ssm_command" {
   description = "Open a shell on the instance (no SSH)"
   value       = "aws ssm start-session --target ${aws_instance.web.id}"

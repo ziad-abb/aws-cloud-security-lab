@@ -49,6 +49,12 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
+variable "cloudtrail_enabled" {
+  description = "Keep true on real AWS. Set false only for LocalStack tests (CloudTrail not in the free license)."
+  type        = bool
+  default     = true
+}
+
 variable "ami_id" {
   description = "Leave empty on real AWS (latest AL2023 via SSM). Set only for LocalStack tests."
   type        = string
