@@ -22,6 +22,16 @@ variable "my_ips" {
   default     = []
 }
 
+variable "alert_email" {
+  description = "Email that receives SNS alerts. Set in terraform.tfvars."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", var.alert_email))
+    error_message = "alert_email must be a valid email address."
+  }
+}
+
 # ---------- Network ----------
 variable "vpc_cidr" {
   type    = string
@@ -31,6 +41,18 @@ variable "vpc_cidr" {
 variable "public_subnet_cidr" {
   type    = string
   default = "10.0.1.0/24"
+}
+
+# ---------- Compute ----------
+variable "instance_type" {
+  type    = string
+  default = "t3.micro"
+}
+
+variable "ami_id" {
+  description = "Leave empty on real AWS (latest AL2023 via SSM). Set only for LocalStack tests."
+  type        = string
+  default     = ""
 }
 
 # ---------- Scenario toggles (all false = secure baseline) ----------

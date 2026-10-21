@@ -6,6 +6,8 @@ my_ips = [
   "198.51.100.20/32" # phone hotspot
 ]
 
+alert_email = "you@example.com"
+
 # Scenario toggles - keep all false for the baseline
 insecure_bucket = false
 ssh_open        = false

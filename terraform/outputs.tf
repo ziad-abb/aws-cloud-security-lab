@@ -17,3 +17,24 @@ output "data_bucket" {
 output "data_kms_key_arn" {
   value = aws_kms_key.data.arn
 }
+
+output "web_instance_id" {
+  value = aws_instance.web.id
+}
+
+output "web_public_ip" {
+  value = aws_instance.web.public_ip
+}
+
+output "web_role_arn" {
+  value = aws_iam_role.web.arn
+}
+
+output "alerts_topic_arn" {
+  value = aws_sns_topic.alerts.arn
+}
+
+output "ssm_command" {
+  description = "Open a shell on the instance (no SSH)"
+  value       = "aws ssm start-session --target ${aws_instance.web.id}"
+}
