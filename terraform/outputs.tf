@@ -9,3 +9,11 @@ output "public_subnet_id" {
 output "web_sg_id" {
   value = aws_security_group.web.id
 }
+
+output "data_bucket" {
+  value = aws_s3_bucket.data.id
+}
+
+output "data_kms_key_arn" {
+  value = aws_kms_key.data.arn
+}
