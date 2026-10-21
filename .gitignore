@@ -40,3 +40,5 @@ evidence/raw/
 .vscode/
 Thumbs.db
 desktop.ini
+
+localstack_providers_override.tf
