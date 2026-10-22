@@ -1,0 +1,211 @@
+<!--
+  seclab custom rules - AWS Cloud Security Lab
+  Feeds: Wazuh aws-s3 module (CloudTrail, eu-north-1) + iam_poller.py (us-east-1 event history, IAM)
+  Both produce {"integration":"aws","aws":{...}} -> built-in rules 80200/80202/80203.
+  Our rules attach with if_group=aws so they run whichever built-in rule the event stopped at.
+  Our rules use group "seclab" (not "aws") so they don't chain into each other.
+
+  CDB lists (etc/lists/, declared in ossec.conf <ruleset>):
+    seclab-known-ips     my IPs (home, hotspot). Format "1.2.3.4:home"
+    seclab-instance-ips  public IP of the lab EC2 (updated after each terraform apply)
+
+  IDs: 100100 S1 | 100110 S2 | 100120 S3 | 100130 S4 | 100140 logging tampering | 100150 generic
+-->
+
+<group name="seclab,">
+
+  <!-- ===================== S1: public bucket ===================== -->
+
+  <!-- Bucket-level Block Public Access removed or weakened -->
+  <rule id="100100" level="10">
+    <if_group>aws</if_group>
+    <field name="aws.eventSource">^s3.amazonaws.com$</field>
+    <field name="aws.eventName">^DeleteBucketPublicAccessBlock$</field>
+    <description>seclab S1: Block Public Access REMOVED on bucket $(aws.requestParameters.bucketName) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1530</id></mitre>
+    <group>seclab_s1,</group>
+  </rule>
+
+  <rule id="100101" level="10">
+    <if_group>aws</if_group>
+    <field name="aws.eventSource">^s3.amazonaws.com$</field>
+    <field name="aws.eventName">^PutBucketPublicAccessBlock$</field>
+    <field name="aws.requestParameters.PublicAccessBlockConfiguration.BlockPublicPolicy">^false$</field>
+    <description>seclab S1: Block Public Access DISABLED (BlockPublicPolicy=false) on bucket $(aws.requestParameters.bucketName) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1530</id></mitre>
+    <group>seclab_s1,</group>
+  </rule>
+
+  <!-- Bucket policy granting access to everyone -->
+  <rule id="100102" level="12">
+    <if_group>aws</if_group>
+    <field name="aws.eventName">^PutBucketPolicy$</field>
+    <regex type="pcre2">"Effect"\s*:\s*"Allow"[^}]*"Principal"\s*:\s*("\*"|\{\s*"AWS"\s*:\s*"\*"\s*\})|"Principal"\s*:\s*("\*"|\{\s*"AWS"\s*:\s*"\*"\s*\})[^}]*"Effect"\s*:\s*"Allow"</regex>
+    <description>seclab S1: PUBLIC bucket policy (Principal "*") applied to $(aws.requestParameters.bucketName) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1530</id></mitre>
+    <group>seclab_s1,</group>
+  </rule>
+
+  <!-- Anonymous (unauthenticated) access to an object: data event -->
+  <rule id="100103" level="12">
+    <if_group>aws</if_group>
+    <field name="aws.eventSource">^s3.amazonaws.com$</field>
+    <field name="aws.userIdentity.type">^AWSAccount$</field>
+    <field name="aws.userIdentity.accountId">^anonymous$|^ANONYMOUS_PRINCIPAL$</field>
+    <description>seclab S1: ANONYMOUS S3 $(aws.eventName) on $(aws.requestParameters.bucketName)/$(aws.requestParameters.key) from $(aws.sourceIPAddress)</description>
+    <mitre><id>T1530</id></mitre>
+    <group>seclab_s1,</group>
+  </rule>
+
+  <!-- Same, but refused: still worth knowing (reconnaissance), lower level -->
+  <rule id="100104" level="7">
+    <if_sid>100103</if_sid>
+    <field name="aws.errorCode">\.+</field>
+    <description>seclab S1: anonymous S3 $(aws.eventName) DENIED ($(aws.errorCode)) on $(aws.requestParameters.bucketName)/$(aws.requestParameters.key) from $(aws.sourceIPAddress)</description>
+    <mitre><id>T1530</id></mitre>
+    <group>seclab_s1,</group>
+  </rule>
+
+  <!-- ===================== S2: leaked dev-ci key ===================== -->
+
+  <!-- dev-ci key used from an IP that is not mine -->
+  <rule id="100110" level="12">
+    <if_group>aws</if_group>
+    <field name="aws.userIdentity.userName">^dev-ci$</field>
+    <list field="aws.sourceIPAddress" lookup="not_address_match_key">etc/lists/seclab-known-ips</list>
+    <description>seclab S2: dev-ci key $(aws.userIdentity.accessKeyId) used from UNKNOWN IP $(aws.sourceIPAddress): $(aws.eventSource) $(aws.eventName)</description>
+    <mitre><id>T1078.004</id></mitre>
+    <group>seclab_s2,</group>
+  </rule>
+
+  <!-- Any new access key -->
+  <rule id="100111" level="5">
+    <if_group>aws</if_group>
+    <field name="aws.eventName">^CreateAccessKey$</field>
+    <description>seclab: access key created for $(aws.requestParameters.userName) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1098.001</id></mitre>
+    <group>seclab_s2,</group>
+  </rule>
+
+  <!-- ...created by anyone other than admin = persistence -->
+  <rule id="100112" level="13">
+    <if_sid>100111</if_sid>
+    <field name="aws.userIdentity.userName" negate="yes">^admin$</field>
+    <description>seclab S2: PERSISTENCE - access key created for $(aws.requestParameters.userName) by NON-ADMIN $(aws.userIdentity.arn) from $(aws.sourceIPAddress)</description>
+    <mitre><id>T1098.001</id></mitre>
+    <group>seclab_s2,</group>
+  </rule>
+
+  <!-- ===================== S3: SSH open to the world ===================== -->
+
+  <rule id="100120" level="12">
+    <if_group>aws</if_group>
+    <field name="aws.eventName">^AuthorizeSecurityGroupIngress$</field>
+    <regex type="pcre2">0\.0\.0\.0/0|::/0</regex>
+    <description>seclab S3: security group $(aws.requestParameters.groupId) opened to the INTERNET (0.0.0.0/0) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1562.007</id></mitre>
+    <group>seclab_s3,</group>
+  </rule>
+
+  <rule id="100121" level="13">
+    <if_sid>100120</if_sid>
+    <regex type="pcre2">"fromPort"\s*:\s*"?22"?|"toPort"\s*:\s*"?22"?</regex>
+    <description>seclab S3: SSH (22/tcp) opened to the INTERNET on $(aws.requestParameters.groupId) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1562.007</id></mitre>
+    <group>seclab_s3,</group>
+  </rule>
+
+  <!-- ===================== S4: stolen instance-role credentials ===================== -->
+
+  <!-- lab-web-role session used from an IP that is not the lab instance (and not an AWS service) -->
+  <rule id="100130" level="13">
+    <if_group>aws</if_group>
+    <field name="aws.userIdentity.type">^AssumedRole$</field>
+    <field name="aws.userIdentity.arn">assumed-role/lab-web-role/</field>
+    <field name="aws.sourceIPAddress" negate="yes">amazonaws.com$|^AWS Internal$</field>
+    <list field="aws.sourceIPAddress" lookup="not_address_match_key">etc/lists/seclab-instance-ips</list>
+    <description>seclab S4: lab-web-role credentials used OUTSIDE the instance from $(aws.sourceIPAddress): $(aws.eventSource) $(aws.eventName)</description>
+    <mitre><id>T1552.005</id><id>T1078.004</id></mitre>
+    <group>seclab_s4,</group>
+  </rule>
+
+  <!-- Credentials that were delivered through IMDSv1 (no session token): the S4 misconfiguration in use -->
+  <rule id="100131" level="9">
+    <if_group>aws</if_group>
+    <field name="aws.userIdentity.sessionContext.ec2RoleDelivery">^1.0$</field>
+    <description>seclab S4: instance-role credentials obtained via IMDSv1 used by $(aws.userIdentity.arn): $(aws.eventName)</description>
+    <mitre><id>T1552.005</id></mitre>
+    <group>seclab_s4,</group>
+  </rule>
+
+  <rule id="100132" level="10">
+    <if_group>aws</if_group>
+    <field name="aws.eventName">^ModifyInstanceMetadataOptions$</field>
+    <regex type="pcre2">"httpTokens"\s*:\s*"optional"</regex>
+    <description>seclab S4: IMDSv1 RE-ENABLED (httpTokens=optional) on $(aws.requestParameters.ModifyInstanceMetadataOptionsRequest.InstanceId) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1552.005</id></mitre>
+    <group>seclab_s4,</group>
+  </rule>
+
+  <!-- ===================== Logging tampering (T1562.008) ===================== -->
+
+  <rule id="100140" level="13">
+    <if_group>aws</if_group>
+    <field name="aws.eventSource">^cloudtrail.amazonaws.com$</field>
+    <field name="aws.eventName">^StopLogging$|^DeleteTrail$|^UpdateTrail$|^PutEventSelectors$|^PutInsightSelectors$</field>
+    <description>seclab: CLOUDTRAIL TAMPERING - $(aws.eventName) on $(aws.requestParameters.name) by $(aws.userIdentity.arn) from $(aws.sourceIPAddress)</description>
+    <mitre><id>T1562.008</id></mitre>
+    <group>seclab_tamper,</group>
+  </rule>
+
+  <rule id="100141" level="12">
+    <if_group>aws</if_group>
+    <field name="aws.eventSource">^s3.amazonaws.com$</field>
+    <field name="aws.eventName">^PutBucketPolicy$|^DeleteBucketPolicy$|^PutBucketLifecycle$|^PutBucketLifecycleConfiguration$|^DeleteBucket$|^PutBucketVersioning$</field>
+    <field name="aws.requestParameters.bucketName">^seclab-trail-</field>
+    <description>seclab: TRAIL BUCKET changed - $(aws.eventName) on $(aws.requestParameters.bucketName) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1562.008</id></mitre>
+    <group>seclab_tamper,</group>
+  </rule>
+
+  <rule id="100142" level="12">
+    <if_group>aws</if_group>
+    <field name="aws.eventSource">^kms.amazonaws.com$</field>
+    <field name="aws.eventName">^ScheduleKeyDeletion$|^DisableKey$|^PutKeyPolicy$</field>
+    <description>seclab: KMS key $(aws.eventName) by $(aws.userIdentity.arn) from $(aws.sourceIPAddress)</description>
+    <mitre><id>T1485</id></mitre>
+    <group>seclab_tamper,</group>
+  </rule>
+
+  <!-- Expected: my own admin key, from my own IP (terraform destroy/apply). Downgrade, don't hide. -->
+  <rule id="100143" level="3">
+    <if_sid>100140, 100141, 100142</if_sid>
+    <field name="aws.userIdentity.userName">^admin$</field>
+    <list field="aws.sourceIPAddress" lookup="address_match_key">etc/lists/seclab-known-ips</list>
+    <description>seclab: expected admin change (terraform) - $(aws.eventName) from known IP $(aws.sourceIPAddress)</description>
+    <group>seclab_expected,</group>
+  </rule>
+
+  <!-- ===================== Generic ===================== -->
+
+  <!-- Any IAM user key used from an IP that is not mine (catches leaked keys other than dev-ci) -->
+  <rule id="100150" level="10">
+    <if_group>aws</if_group>
+    <field name="aws.userIdentity.type">^IAMUser$</field>
+    <field name="aws.userIdentity.userName" negate="yes">^dev-ci$</field>
+    <list field="aws.sourceIPAddress" lookup="not_address_match_key">etc/lists/seclab-known-ips</list>
+    <description>seclab: IAM user $(aws.userIdentity.userName) key used from UNKNOWN IP $(aws.sourceIPAddress): $(aws.eventName)</description>
+    <mitre><id>T1078.004</id></mitre>
+    <group>seclab_generic,</group>
+  </rule>
+
+  <!-- Activity in a region this account never uses (us-east-1 = global services, allowed) -->
+  <rule id="100151" level="10">
+    <if_group>aws</if_group>
+    <field name="aws.awsRegion" negate="yes">^eu-north-1$|^us-east-1$</field>
+    <description>seclab: API activity in UNUSED region $(aws.awsRegion): $(aws.eventSource) $(aws.eventName) by $(aws.userIdentity.arn)</description>
+    <mitre><id>T1535</id></mitre>
+    <group>seclab_generic,</group>
+  </rule>
+
+</group>

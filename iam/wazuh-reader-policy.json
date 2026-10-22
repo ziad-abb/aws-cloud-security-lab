@@ -1,0 +1,46 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListTrailBucket",
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket", "s3:GetBucketLocation"],
+      "Resource": "arn:aws:s3:::seclab-trail-111122223333"
+    },
+    {
+      "Sid": "ReadTrailLogFiles",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::seclab-trail-111122223333/AWSLogs/111122223333/*"
+    },
+    {
+      "Sid": "DecryptTrailKeyViaS3Only",
+      "Effect": "Allow",
+      "Action": "kms:Decrypt",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": { "kms:ViaService": "s3.eu-north-1.amazonaws.com" },
+        "ForAnyValue:StringEquals": { "kms:ResourceAliases": "alias/seclab-trail" }
+      }
+    },
+    {
+      "Sid": "ReadIamEventsFromEventHistory",
+      "Effect": "Allow",
+      "Action": "cloudtrail:LookupEvents",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": { "aws:RequestedRegion": ["us-east-1", "eu-north-1"] }
+      }
+    },
+    {
+      "Sid": "DenyEverythingOutsideHomeIp",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "NotIpAddress": { "aws:SourceIp": "HOME_IP_CIDR" },
+        "BoolIfExists": { "aws:ViaAWSService": "false" }
+      }
+    }
+  ]
+}

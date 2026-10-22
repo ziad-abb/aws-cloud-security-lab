@@ -1,0 +1,15 @@
+[Unit]
+Description=seclab: poll us-east-1 CloudTrail event history for IAM events (Wazuh feed)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/var/ossec/framework/python/bin/python3 /opt/seclab/iam_poller.py
+User=root
+# Hardening: the script only needs to write its log and state files
+ProtectSystem=strict
+ReadWritePaths=/var/log/seclab /var/lib/seclab
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true

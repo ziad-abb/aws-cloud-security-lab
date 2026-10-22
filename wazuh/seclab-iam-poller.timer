@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the seclab IAM event poller every 2 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=2min
+AccuracySec=10s
+Unit=seclab-iam-poller.service
+
+[Install]
+WantedBy=timers.target
