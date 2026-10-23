@@ -1,0 +1,33 @@
+{
+  "version": "0",
+  "id": "test-l2",
+  "detail-type": "AWS API Call via CloudTrail",
+  "source": "aws.ec2",
+  "account": "ACCOUNT_ID",
+  "time": "EVENT_TIME",
+  "region": "eu-north-1",
+  "resources": [],
+  "detail": {
+    "eventVersion": "1.11",
+    "userIdentity": {
+      "type": "IAMUser",
+      "arn": "arn:aws:iam::ACCOUNT_ID:user/admin",
+      "userName": "admin"
+    },
+    "eventTime": "EVENT_TIME",
+    "eventSource": "ec2.amazonaws.com",
+    "eventName": "AuthorizeSecurityGroupIngress",
+    "awsRegion": "eu-north-1",
+    "sourceIPAddress": "203.0.113.10",
+    "requestParameters": {
+      "groupId": "SG_ID",
+      "ipPermissions": {
+        "items": [
+          { "ipProtocol": "tcp", "fromPort": 22, "toPort": 22,
+            "ipRanges": { "items": [ { "cidrIp": "0.0.0.0/0" } ] } }
+        ]
+      }
+    },
+    "eventType": "AwsApiCall"
+  }
+}

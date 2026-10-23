@@ -42,6 +42,14 @@ output "trail_bucket" {
   value = aws_s3_bucket.trail.id
 }
 
+output "remediation_lambdas" {
+  value = { for k, f in aws_lambda_function.remediation : k => f.function_name }
+}
+
+output "remediation_rules_state" {
+  value = var.lambdas_enabled ? "ENABLED" : "DISABLED"
+}
+
 output "ssm_command" {
   description = "Open a shell on the instance (no SSH)"
   value       = "aws ssm start-session --target ${aws_instance.web.id}"

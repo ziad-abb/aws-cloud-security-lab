@@ -45,3 +45,5 @@ localstack_providers_override.tf
 reports/prowler/*/
 
 tfplan
+
+terraform/build/

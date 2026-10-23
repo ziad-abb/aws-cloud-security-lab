@@ -1,0 +1,33 @@
+{
+  "version": "0",
+  "id": "test-l1",
+  "detail-type": "AWS API Call via CloudTrail",
+  "source": "aws.s3",
+  "account": "ACCOUNT_ID",
+  "time": "EVENT_TIME",
+  "region": "eu-north-1",
+  "resources": [],
+  "detail": {
+    "eventVersion": "1.11",
+    "userIdentity": {
+      "type": "IAMUser",
+      "arn": "arn:aws:iam::ACCOUNT_ID:user/admin",
+      "userName": "admin"
+    },
+    "eventTime": "EVENT_TIME",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "PutBucketPublicAccessBlock",
+    "awsRegion": "eu-north-1",
+    "sourceIPAddress": "203.0.113.10",
+    "requestParameters": {
+      "bucketName": "BUCKET_NAME",
+      "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": false,
+        "IgnorePublicAcls": false,
+        "BlockPublicPolicy": false,
+        "RestrictPublicBuckets": false
+      }
+    },
+    "eventType": "AwsApiCall"
+  }
+}
