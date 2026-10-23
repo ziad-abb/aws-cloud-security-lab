@@ -12,5 +12,4 @@ alert_email = "you@example.com"
 insecure_bucket = false
 ssh_open        = false
 imds_v1         = false
-vuln_app        = false
 lambdas_enabled = false

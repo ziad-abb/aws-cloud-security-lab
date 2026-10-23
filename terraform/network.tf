@@ -79,14 +79,3 @@ resource "aws_vpc_security_group_ingress_rule" "ssh_open" {
   to_port           = 22
   cidr_ipv4         = "0.0.0.0/0"
 }
-
-# S4 scenario toggle: Flask app port open only to my own IPs.
-resource "aws_vpc_security_group_ingress_rule" "app_from_me" {
-  for_each          = var.vuln_app ? toset(var.my_ips) : toset([])
-  security_group_id = aws_security_group.web.id
-  description       = "S4 scenario - app port from my IPs only"
-  ip_protocol       = "tcp"
-  from_port         = 5000
-  to_port           = 5000
-  cidr_ipv4         = each.value
-}

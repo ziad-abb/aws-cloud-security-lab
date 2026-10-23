@@ -93,19 +93,13 @@ variable "ssh_open" {
 }
 
 variable "imds_v1" {
-  description = "S4: http_tokens = optional (IMDSv1 allowed)"
-  type        = bool
-  default     = false
-}
-
-variable "vuln_app" {
-  description = "S4: deploy the SSRF-vulnerable Flask route and open the app port to my_ips"
+  description = "Misconfiguration test for L3: http_tokens = optional (IMDSv1 allowed)"
   type        = bool
   default     = false
 }
 
 variable "lambdas_enabled" {
-  description = "S1/S3: EventBridge rules + auto-remediation Lambdas active"
+  description = "EventBridge rules + auto-remediation Lambdas L1/L2/L3 active"
   type        = bool
   default     = false
 }

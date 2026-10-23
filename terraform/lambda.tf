@@ -1,6 +1,6 @@
 # Phase 3 - auto-remediation: EventBridge ("AWS API Call via CloudTrail") -> Lambda -> SNS email.
 # Lambdas are always deployed; var.lambdas_enabled only switches the EventBridge RULES on/off
-# (instant, in-place). L1 = S1 S3 re-block | L2 = S3 SG revoke | L3 = IMDSv2 enforce (keep OFF during S4).
+# (instant, in-place). L1 = S1 S3 re-block | L2 = S3 SG revoke | L3 = IMDSv2 enforce (imds_v1 misconfiguration test).
 # Cost: Lambda/EventBridge free tier; log groups kept 7 days.
 
 locals {

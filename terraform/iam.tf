@@ -22,7 +22,7 @@ resource "aws_iam_role_policy_attachment" "web_ssm" {
 }
 
 # What the app legitimately needs: read the customer files.
-# This is also exactly what an attacker gets in S4 if the role credentials are stolen.
+# This is also exactly what an attacker gets if the role credentials are ever stolen (blast radius).
 data "aws_iam_policy_document" "web_data_read" {
   statement {
     sid       = "ListDataBucket"
@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "web_data_read" {
   }
 
   # Boot-time only: read the Tailscale auth key (SecureString, AWS-managed aws/ssm key).
-  # Known risk (S4): stolen role credentials can read it too -> documented, mitigated in Phase 5 (tagged key + Tailscale ACL).
+  # Known risk: stolen role credentials can read it too -> documented, mitigated in Phase 5 (tagged key + Tailscale ACL).
   statement {
     sid       = "ReadTailscaleAuthKey"
     actions   = ["ssm:GetParameter"]

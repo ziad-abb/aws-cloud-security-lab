@@ -22,7 +22,7 @@ resource "aws_instance" "web" {
   associate_public_ip_address = true # needed to reach SSM without a NAT Gateway
   # No key_name: there is no SSH key at all. Admin access = SSM only.
 
-  # S4 toggle. Baseline = IMDSv2 required (session token needed, SSRF-resistant).
+  # imds_v1 toggle (L3 misconfiguration test). Baseline = IMDSv2 required (session token needed).
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = var.imds_v1 ? "optional" : "required"

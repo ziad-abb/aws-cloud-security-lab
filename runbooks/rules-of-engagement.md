@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Owner / approver | Ziad Abbassi (account owner, red team and blue team in this lab) |
-| Valid for | Phase 4 attack runs (S1–S4) and any rule-test triggers |
-| Version / date | v1 — 2026-10-23 |
+| Valid for | Phase 4 attack runs (S1–S3), the IMDSv1 misconfiguration test (L3) and any rule-test triggers |
+| Version / date | v2 — 2026-10-23 |
 
 Purpose: write down **before** attacking what is allowed, against what, from where, and when to stop. Even when one person plays both sides, this is what separates a controlled test from an incident.
 
@@ -12,7 +12,7 @@ Purpose: write down **before** attacking what is allowed, against what, from whe
 
 **In scope**
 - AWS account **111122223333**, region **eu-north-1**, resources created by this repo's Terraform (tagged `Project=seclab`) plus the `dev-ci` IAM user created for S2.
-- The lab EC2 instance and its web app (S3, S4).
+- The lab EC2 instance (S3, IMDSv1 misconfiguration test).
 - My own VMs (Wazuh VM1, Kali VM2) on my laptop.
 
 **Out of scope (never touched)**
@@ -26,7 +26,7 @@ Purpose: write down **before** attacking what is allowed, against what, from whe
 - S1: making the lab data bucket public via the Terraform toggle, anonymous `curl` reads of the two lab files.
 - S2: using the `dev-ci` key from Kali/CloudShell: `sts get-caller-identity`, list/read the lab bucket, create one extra access key (persistence), TruffleHog against the lab repo.
 - S3: opening tcp/22 via the toggle, **Hydra against the lab instance only**, time-boxed (below).
-- S4: SSRF request to the instance metadata service through the lab app, using the stolen role credentials from Kali.
+- IMDSv1 test: setting `imds_v1=true` via the toggle so L3 re-enforces IMDSv2 (no attack traffic).
 
 **Forbidden** (in line with the AWS Customer Support Policy for Penetration Testing)
 - Denial of service, flooding, stress tests, or any traffic designed to degrade a service.
@@ -36,8 +36,7 @@ Purpose: write down **before** attacking what is allowed, against what, from whe
 
 **Rate / time limits**
 - Hydra: max 4 parallel tasks (`-t 4`), a small wordlist (≤ 200 entries), **max 5 minutes** per run.
-- Each scenario exposure window (bucket public, SSH open, vulnerable app up) is **time-boxed to 60 minutes**, then reverted.
-- Vulnerable app port (5000) is open **only to my own IPs** (`my_ips`), never to 0.0.0.0/0.
+- Each scenario exposure window (bucket public, SSH open, IMDSv1 allowed) is **time-boxed to 60 minutes**, then reverted.
 
 ## 3. Identities and IPs
 | Role | Identity | Source IP |
@@ -53,7 +52,7 @@ Record the attacker's public IP at the start of every run: `curl -s https://chec
 - [ ] `refresh_home_ip.ps1` done; `terraform.tfvars` `my_ips` correct.
 - [ ] Stack applied, **≥ 5 minutes waited** (new-trail warm-up), `update_instance_ip.ps1` done, SNS subscription confirmed.
 - [ ] Wazuh agent Active, trail reader `files=1+`, IAM poller running.
-- [ ] Toggles set for the run (e.g. S1 detection run: `insecure_bucket=true`, `lambdas_enabled=false`; S4: `lambdas_enabled=false`).
+- [ ] Toggles set for the run (e.g. S1 detection run: `insecure_bucket=true`, `lambdas_enabled=false`; containment run: same toggle + `lambdas_enabled=true`).
 - [ ] Budget OK (< $5 alert threshold), credits checked.
 - [ ] Start time (UTC) and attacker IP written in the run log.
 
@@ -83,3 +82,4 @@ Approved by the account owner for the lab period. Any change to scope or techniq
 | Version | Date | Change | Approved by |
 |---|---|---|---|
 | v1 | 2026-10-23 | Initial RoE for S1–S4 | Ziad Abbassi |
+| v2 | 2026-10-23 | S4 (SSRF → stolen role credentials) removed from scope; no web app deployed; IMDSv1 kept as an L3 misconfiguration test only | Ziad Abbassi |
