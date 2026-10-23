@@ -24,6 +24,12 @@
       }
     },
     {
+      "Sid": "ConsumeTrailNotifications",
+      "Effect": "Allow",
+      "Action": ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueUrl", "sqs:GetQueueAttributes"],
+      "Resource": "arn:aws:sqs:eu-north-1:111122223333:seclab-trail-events"
+    },
+    {
       "Sid": "ReadIamEventsFromEventHistory",
       "Effect": "Allow",
       "Action": "cloudtrail:LookupEvents",

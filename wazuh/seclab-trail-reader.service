@@ -1,0 +1,14 @@
+[Unit]
+Description=seclab: read CloudTrail files via SQS (arrival order) for Wazuh
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/var/ossec/framework/python/bin/python3 /opt/seclab/trail_sqs_reader.py
+User=root
+ProtectSystem=strict
+ReadWritePaths=/var/log/seclab /var/lib/seclab
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true

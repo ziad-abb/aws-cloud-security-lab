@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the seclab CloudTrail SQS reader every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+AccuracySec=5s
+Unit=seclab-trail-reader.service
+
+[Install]
+WantedBy=timers.target
