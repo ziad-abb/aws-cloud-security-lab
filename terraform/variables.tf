@@ -49,6 +49,24 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
+variable "wazuh_manager_ip" {
+  description = "Tailscale IP of the Wazuh manager (VM1)"
+  type        = string
+  default     = "100.125.248.13"
+}
+
+variable "wazuh_agent_version" {
+  description = "Must not be newer than the manager (4.14.9)"
+  type        = string
+  default     = "4.14.9-1"
+}
+
+variable "tailscale_param_name" {
+  description = "SSM SecureString holding the Tailscale auth key (created by hand, never in state)"
+  type        = string
+  default     = "/seclab/tailscale-authkey"
+}
+
 variable "cloudtrail_enabled" {
   description = "Keep true on real AWS. Set false only for LocalStack tests (CloudTrail not in the free license)."
   type        = bool

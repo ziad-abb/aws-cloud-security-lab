@@ -41,6 +41,14 @@ data "aws_iam_policy_document" "web_data_read" {
     actions   = ["kms:Decrypt"]
     resources = [aws_kms_key.data.arn]
   }
+
+  # Boot-time only: read the Tailscale auth key (SecureString, AWS-managed aws/ssm key).
+  # Known risk (S4): stolen role credentials can read it too -> documented, mitigated in Phase 5 (tagged key + Tailscale ACL).
+  statement {
+    sid       = "ReadTailscaleAuthKey"
+    actions   = ["ssm:GetParameter"]
+    resources = ["arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter${var.tailscale_param_name}"]
+  }
 }
 
 resource "aws_iam_role_policy" "web_data_read" {

@@ -72,9 +72,20 @@
   <rule id="100110" level="12">
     <if_group>aws</if_group>
     <field name="aws.userIdentity.userName">^dev-ci$</field>
+    <field name="aws.sourceIPAddress" negate="yes">amazonaws.com$|^AWS Internal$</field>
     <list field="aws.sourceIPAddress" lookup="not_address_match_key">etc/lists/seclab-known-ips</list>
     <description>seclab S2: dev-ci key $(aws.userIdentity.accessKeyId) used from UNKNOWN IP $(aws.sourceIPAddress): $(aws.eventSource) $(aws.eventName)</description>
     <mitre><id>T1078.004</id></mitre>
+    <group>seclab_s2,</group>
+  </rule>
+
+  <!-- The leaked key creating a NEW key = attacker persistence. Child of 100110, because 100110
+       matches first and Wazuh stops at the first matching sibling (100111/100112 never run). -->
+  <rule id="100113" level="14">
+    <if_sid>100110</if_sid>
+    <field name="aws.eventName">^CreateAccessKey$</field>
+    <description>seclab S2: PERSISTENCE - leaked dev-ci key created a new access key for $(aws.requestParameters.userName) from UNKNOWN IP $(aws.sourceIPAddress)</description>
+    <mitre><id>T1098.001</id><id>T1078.004</id></mitre>
     <group>seclab_s2,</group>
   </rule>
 
@@ -125,6 +136,16 @@
     <field name="aws.sourceIPAddress" negate="yes">amazonaws.com$|^AWS Internal$</field>
     <list field="aws.sourceIPAddress" lookup="not_address_match_key">etc/lists/seclab-instance-ips</list>
     <description>seclab S4: lab-web-role credentials used OUTSIDE the instance from $(aws.sourceIPAddress): $(aws.eventSource) $(aws.eventName)</description>
+    <mitre><id>T1552.005</id><id>T1078.004</id></mitre>
+    <group>seclab_s4,</group>
+  </rule>
+
+  <!-- Escalation: the stolen creds came from IMDSv1 = the full S4 chain (SSRF-able IMDS -> creds used elsewhere).
+       Child of 100130 because 100130 matches first and Wazuh stops at the first matching sibling. -->
+  <rule id="100133" level="14">
+    <if_sid>100130</if_sid>
+    <field name="aws.userIdentity.sessionContext.ec2RoleDelivery">^1.0$</field>
+    <description>seclab S4: IMDSv1-delivered lab-web-role credentials used OUTSIDE the instance from $(aws.sourceIPAddress): $(aws.eventName)</description>
     <mitre><id>T1552.005</id><id>T1078.004</id></mitre>
     <group>seclab_s4,</group>
   </rule>
@@ -193,6 +214,8 @@
     <if_group>aws</if_group>
     <field name="aws.userIdentity.type">^IAMUser$</field>
     <field name="aws.userIdentity.userName" negate="yes">^dev-ci$</field>
+    <!-- Calls an AWS service makes on the user's behalf (e.g. S3 -> KMS Decrypt) show a service name, not an IP -->
+    <field name="aws.sourceIPAddress" negate="yes">amazonaws.com$|^AWS Internal$</field>
     <list field="aws.sourceIPAddress" lookup="not_address_match_key">etc/lists/seclab-known-ips</list>
     <description>seclab: IAM user $(aws.userIdentity.userName) key used from UNKNOWN IP $(aws.sourceIPAddress): $(aws.eventName)</description>
     <mitre><id>T1078.004</id></mitre>

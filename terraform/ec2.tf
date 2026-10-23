@@ -42,6 +42,15 @@ resource "aws_instance" "web" {
     cpu_credits = "standard"
   }
 
+  # First-boot bootstrap: rsyslog + Tailscale + Wazuh agent (see user_data.sh.tftpl).
+  user_data = templatefile("${path.module}/user_data.sh.tftpl", {
+    region        = var.region
+    ts_param      = var.tailscale_param_name
+    manager_ip    = var.wazuh_manager_ip
+    agent_version = var.wazuh_agent_version
+  })
+  user_data_replace_on_change = true # bootstrap only runs at first boot, so a change needs a new instance
+
   tags = { Name = "${var.project}-web" }
 
   lifecycle {

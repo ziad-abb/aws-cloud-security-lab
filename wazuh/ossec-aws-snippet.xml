@@ -1,0 +1,19 @@
+<!--
+  Paste inside <ossec_config> in /var/ossec/etc/ossec.conf on VM1 (before the final </ossec_config>).
+  Pulls CloudTrail log files from the trail bucket every 5 minutes with the wazuh-reader profile
+  (/root/.aws/credentials). While the lab is destroyed the bucket doesn't exist: skip_on_error keeps
+  the module quiet and it resumes when the bucket is back.
+  Set only_logs_after to the day you start (format YYYY-MMM-DD) so old files aren't re-read.
+-->
+  <wodle name="aws-s3">
+    <disabled>no</disabled>
+    <interval>5m</interval>
+    <run_on_start>yes</run_on_start>
+    <skip_on_error>yes</skip_on_error>
+    <bucket type="cloudtrail">
+      <name>seclab-trail-111122223333</name>
+      <aws_profile>wazuh-reader</aws_profile>
+      <regions>eu-north-1</regions>
+      <only_logs_after>2026-OCT-23</only_logs_after>
+    </bucket>
+  </wodle>

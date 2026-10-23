@@ -1,0 +1,40 @@
+#!/bin/bash
+# seclab EC2 bootstrap (cloud-init, first boot, as root): rsyslog + Tailscale + Wazuh agent.
+# Secrets: the Tailscale auth key is read from SSM Parameter Store at boot, never stored here.
+set -euo pipefail
+exec > >(tee -a /var/log/seclab-bootstrap.log) 2>&1
+echo "[seclab] bootstrap start $(date -u +%FT%TZ)"
+
+# 1. rsyslog: AL2023 logs to journald only; /var/log/secure is where Wazuh reads sshd events (S3 / Hydra)
+dnf install -y rsyslog
+systemctl enable --now rsyslog
+
+# 2. Instance identity (IMDSv2 token works whether or not IMDSv1 is allowed)
+TOKEN=$(curl -sS -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 300")
+IID=$(curl -sS -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+echo "[seclab] instance $IID"
+
+# 3. Tailscale (joins the tailnet so the agent can reach the Wazuh manager on VM1)
+curl -fsSL https://tailscale.com/install.sh | sh
+TSKEY=$(aws ssm get-parameter --region ${region} --name ${ts_param} --with-decryption --query Parameter.Value --output text)
+tailscale up --authkey "$TSKEY" --hostname "seclab-web-$IID"
+unset TSKEY
+echo "[seclab] tailscale ip: $(tailscale ip -4)"
+
+# 4. Wazuh agent, pinned to the manager's version, then repo disabled (no surprise upgrades)
+rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
+cat > /etc/yum.repos.d/wazuh.repo <<'EOF'
+[wazuh]
+gpgcheck=1
+gpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+enabled=1
+name=EL-$releasever - Wazuh
+baseurl=https://packages.wazuh.com/4.x/yum/
+protect=1
+EOF
+WAZUH_MANAGER="${manager_ip}" WAZUH_AGENT_NAME="seclab-web-$IID" dnf install -y wazuh-agent-${agent_version}
+sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/wazuh.repo
+systemctl daemon-reload
+systemctl enable --now wazuh-agent
+
+echo "[seclab] bootstrap done $(date -u +%FT%TZ)"
