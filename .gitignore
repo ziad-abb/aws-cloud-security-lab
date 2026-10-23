@@ -43,3 +43,5 @@ desktop.ini
 
 localstack_providers_override.tf
 reports/prowler/*/
+
+tfplan
