@@ -1,4 +1,4 @@
-# Laboratoire de sécurité cloud AWS — Détecter, contenir, rapporter
+﻿# Laboratoire de sécurité cloud AWS — Détecter, contenir, rapporter
 
 > 🇬🇧 [English version](README.md)
 
@@ -121,4 +121,4 @@ reports/     timelines.xlsx (journal d'exécution anonymisé) · rapports d'inci
 
 **Ziad Abbassi** — élève ingénieur en 5e année, Cybersécurité et Réseaux, EMSI Rabat (Maroc).
 À la recherche d'un stage de fin d'études (PFE) en réponse à incident, sécurité cloud ou GRC. · 
-linkedin.com/in/ziad-abbassi
+[LinkedIn](https://www.linkedin.com/in/ziad-abbassi)

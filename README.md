@@ -1,4 +1,4 @@
-# AWS Cloud Security Lab — Detect, Contain, Report
+﻿# AWS Cloud Security Lab — Detect, Contain, Report
 
 > 🇫🇷 [Version française](README.fr.md)
 
@@ -121,4 +121,4 @@ reports/     timelines.xlsx (sanitized run log) · incident reports and Prowler 
 
 **Ziad Abbassi** — 5th-year engineering student, Cybersecurity & Networks, EMSI Rabat (Morocco).
 Looking for a final-year internship (PFE) in incident response, cloud security or GRC. · 
-linkedin.com/in/ziad-abbassi
+[LinkedIn](https://www.linkedin.com/in/ziad-abbassi)
