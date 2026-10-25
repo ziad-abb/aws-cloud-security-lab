@@ -12,7 +12,7 @@ if (-not $vpc -or $vpc -eq "None") { Write-Host "No default VPC in $region. Noth
 $enis = aws ec2 describe-network-interfaces --region $region --filters "Name=vpc-id,Values=$vpc" --query "NetworkInterfaces[].NetworkInterfaceId" --output text
 if ($enis) { throw "Default VPC $vpc still has network interfaces ($enis). Not deleting." }
 
-$answer = Read-Host "Delete default VPC $vpc in $region? Type yes"
+$answer = Read-Host "Delete default VPC $vpc in ${region}? Type yes"
 if ($answer -ne "yes") { Write-Host "Cancelled."; exit 0 }
 
 foreach ($igw in (aws ec2 describe-internet-gateways --region $region --filters "Name=attachment.vpc-id,Values=$vpc" --query "InternetGateways[].InternetGatewayId" --output text) -split "\s+" | Where-Object { $_ }) {

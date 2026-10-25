@@ -28,4 +28,4 @@
 
 **Situation des risques :** 17 risques recensés ; **7 jugés élevés avant les contrôles, 0 après** (score moyen 12,3 → 5,8 sur 25). Les risques résiduels ont un responsable et sont suivis dans `reports/risk-register.xlsx`.
 
-**Conformité :** les contrôles sont mis en correspondance avec CIS AWS 7.0, ISO/IEC 27001:2022, ISO/IEC 27017 et NIST CSF 2.0. Une note traite de la loi marocaine 09-08 (données personnelles). Score de configuration (CIS) : 53 % au départ, 57 % pendant les tests ; un score final après durcissement suivra.
+**Conformité :** les contrôles sont mis en correspondance avec CIS AWS 7.0, ISO/IEC 27001:2022, ISO/IEC 27017 et NIST CSF 2.0. Une note traite de la loi marocaine 09-08 (données personnelles). Score de configuration (CIS AWS 7.0) : **53 % au départ → 57 % pendant les tests → 68 % après durcissement** (échecs 39 → 31).

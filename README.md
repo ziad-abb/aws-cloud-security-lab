@@ -26,7 +26,7 @@ A hands-on cloud security project: I built a small fictional company on **real A
 - **Defence in depth held:** the KMS-encrypted copy of the data could not be read anonymously nor with the leaked key (no `kms:Decrypt`); SSH brute force failed because the instance is key-only / SSM-only.
 - **The SIEM caught what automation missed:** in one run the EventBridge rule had been enabled only 40 s earlier and never fired — Wazuh still raised the anonymous-read alert within ~1 min.
 - **Evidence integrity:** every run has its own evidence folder with SHA-256 hashes; CloudTrail log-file validation passed (1/1 digest, 17/17 log files) for the whole attack window.
-- **CIS AWS 7.0 (Prowler):** 53.33 % baseline → 57.14 % during the attacks (see *Findings* for why the score went *up*) → after-hardening scan planned in Phase 5.
+- **CIS AWS 7.0 (Prowler):** 53.33 % baseline → 57.14 % during the attacks (see *Findings* for why the score went *up*) → **67.71 % after hardening** (failures 39 → 31; [summary](reports/prowler/summary.md)).
 
 ---
 
@@ -87,7 +87,8 @@ All attack runs followed written **[rules of engagement](runbooks/rules-of-engag
 3. **Key-only SSH defeats password brute force** (Hydra aborted: no password auth) — a compensating control worth stating in the risk register.
 4. **IAM names are reusable, IDs are not.** Threat hunting by `userName` returned an event from an older user with the same name; investigations must key on the principal ID.
 5. **Access-key IDs leak the account ID** (it can be decoded from `AKIA…`), so key IDs are treated as sensitive in published reports.
-6. **Ingestion is part of detection.** Two pipeline gaps (global IAM events, out-of-order trail files) would have hidden real attacks; both were proven and fixed.
+6. **Account-level guardrails can block hardening too.** The account type sits in an AWS-managed organization whose service control policy denies IAM group operations, so the CIS "permissions through groups" control could not be applied — documented as an accepted risk.
+7. **Ingestion is part of detection.** Two pipeline gaps (global IAM events, out-of-order trail files) would have hidden real attacks; both were proven and fixed.
 
 ---
 
@@ -103,6 +104,7 @@ All attack runs followed written **[rules of engagement](runbooks/rules-of-engag
 | [Control mapping](reports/grc/control-mapping.md) | 21 controls → CIS AWS 7.0, ISO/IEC 27001:2022, ISO/IEC 27017, NIST CSF 2.0 |
 | [Moroccan law 09-08 note](reports/grc/law-09-08-note.md) | Personal-data obligations applied to the incidents |
 | [Management summary](reports/management-summary.md) · [FR](reports/management-summary.fr.md) | One page for non-technical readers |
+| [Prowler summary](reports/prowler/summary.md) | CIS AWS 7.0 before / during / after (53.33 → 57.14 → 67.71 %), requirements fixed, remaining failures |
 | [Run log](reports/timelines.xlsx) | Every run's timestamps and computed detection/containment times (sanitized) |
 
 ---
@@ -128,7 +130,7 @@ reports/     incidents/ · grc/ · risk-register.xlsx · management summary · t
 - [x] Phase 2 — detection pipeline + 21 custom Wazuh rules
 - [x] Phase 3 — automated containment (3 Lambdas) + IR runbook + rules of engagement
 - [x] Phase 4 — live attack runs, measured and evidenced
-- [ ] **Phase 5 — incident reports (ISO 27035), risk register, CIS / ISO 27001 Annex A / ISO 27017 mapping, Moroccan law 09-08 note, final hardening + Prowler #3** *(in progress)*
+- [x] Phase 5 — incident reports (ISO 27035), risk register, CIS / ISO 27001 / ISO 27017 / NIST CSF mapping, Moroccan law 09-08 note, final hardening + Prowler #3 (CIS 67.71 %)
 - [ ] Phase 6 — final publication
 
 ---

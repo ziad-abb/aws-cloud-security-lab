@@ -26,7 +26,7 @@ Un projet pratique de sécurité cloud : j'ai construit une petite entreprise fi
 - **La défense en profondeur a tenu :** la copie chiffrée par KMS n'a pu être lue ni anonymement ni avec la clé divulguée (pas de `kms:Decrypt`) ; la force brute SSH a échoué car l'instance n'accepte que les clés / SSM.
 - **Le SIEM a rattrapé ce que l'automatisation a manqué :** lors d'une exécution, la règle EventBridge activée 40 s plus tôt ne s'est pas déclenchée — Wazuh a quand même levé l'alerte de lecture anonyme en ~1 min.
 - **Intégrité des preuves :** chaque exécution a son dossier de preuves avec empreintes SHA-256 ; la validation des fichiers CloudTrail a réussi (1/1 digest, 17/17 fichiers) sur toute la fenêtre d'attaque.
-- **CIS AWS 7.0 (Prowler) :** 53,33 % au départ → 57,14 % pendant les attaques (voir *Constats* : pourquoi le score a *augmenté*) → analyse après durcissement prévue en phase 5.
+- **CIS AWS 7.0 (Prowler) :** 53,33 % au départ → 57,14 % pendant les attaques (voir *Constats* : pourquoi le score a *augmenté*) → **67,71 % après durcissement** (échecs 39 → 31 ; [synthèse](reports/prowler/summary.md)).
 
 ---
 
@@ -87,7 +87,8 @@ Toutes les attaques ont suivi des **[règles d'engagement](runbooks/rules-of-eng
 3. **SSH par clé uniquement neutralise la force brute par mot de passe** (Hydra s'arrête : pas d'authentification par mot de passe) — une mesure compensatoire à inscrire au registre des risques.
 4. **Les noms IAM sont réutilisables, les identifiants non.** Une recherche par `userName` a remonté un événement d'un ancien utilisateur du même nom ; une investigation doit s'appuyer sur l'identifiant du principal.
 5. **Les identifiants de clé d'accès révèlent le numéro de compte** (décodable depuis `AKIA…`) : ils sont donc traités comme sensibles dans les rapports publiés.
-6. **La collecte fait partie de la détection.** Deux failles du pipeline (événements IAM globaux, fichiers de trace hors ordre) auraient masqué de vraies attaques ; les deux ont été démontrées puis corrigées.
+6. **Les garde-fous du compte peuvent aussi bloquer le durcissement.** Ce type de compte appartient à une organisation gérée par AWS dont une politique SCP interdit les opérations sur les groupes IAM : le contrôle CIS « droits via des groupes » n'a pas pu être appliqué — documenté comme risque accepté.
+7. **La collecte fait partie de la détection.** Deux failles du pipeline (événements IAM globaux, fichiers de trace hors ordre) auraient masqué de vraies attaques ; les deux ont été démontrées puis corrigées.
 
 ---
 
@@ -103,6 +104,7 @@ Toutes les attaques ont suivi des **[règles d'engagement](runbooks/rules-of-eng
 | [Correspondance des contrôles](reports/grc/control-mapping.md) | 21 contrôles → CIS AWS 7.0, ISO/IEC 27001:2022, ISO/IEC 27017, NIST CSF 2.0 |
 | [Note loi 09-08](reports/grc/law-09-08-note.md) | Obligations sur les données personnelles appliquées aux incidents |
 | [Synthèse direction](reports/management-summary.fr.md) · [EN](reports/management-summary.md) | Une page pour un lecteur non technique |
+| [Synthèse Prowler](reports/prowler/summary.md) | CIS AWS 7.0 avant / pendant / après (53,33 → 57,14 → 67,71 %), exigences corrigées, échecs restants (en anglais) |
 | [Journal d'exécution](reports/timelines.xlsx) | Horodatages de chaque exécution et temps de détection / confinement calculés (anonymisé) |
 
 ---
@@ -128,7 +130,7 @@ reports/     incidents/ · grc/ · risk-register.xlsx · synthèse direction · 
 - [x] Phase 2 — chaîne de détection + 21 règles Wazuh personnalisées
 - [x] Phase 3 — confinement automatisé (3 Lambda) + runbook de réponse + règles d'engagement
 - [x] Phase 4 — attaques réelles, mesurées et documentées
-- [ ] **Phase 5 — rapports d'incident (ISO 27035), registre des risques, correspondance CIS / ISO 27001 annexe A / ISO 27017, note loi 09-08, durcissement final + Prowler n° 3** *(en cours)*
+- [x] Phase 5 — rapports d'incident (ISO 27035), registre des risques, correspondance CIS / ISO 27001 / ISO 27017 / NIST CSF, note loi 09-08, durcissement final + Prowler n° 3 (CIS 67,71 %)
 - [ ] Phase 6 — publication finale
 
 ---

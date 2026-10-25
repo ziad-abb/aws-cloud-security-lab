@@ -79,7 +79,7 @@ if len(runs) >= 2:
     (n1, (_, _, a)), (n2, (_, _, b)) = runs[-2], runs[-1]
     fixed = sorted(k for k in a if a[k][0] == "FAIL" and b.get(k, ("FAIL",))[0] == "PASS")
     broke = sorted(k for k in b if b[k][0] == "FAIL" and a.get(k, ("PASS",))[0] == "PASS")
-    print(f"\n## Changes {n1} → {n2}\n")
+    print(f"\n## Changes {n1} -> {n2}\n")
     print(f"**Now passing ({len(fixed)}):**\n")
     for k in fixed:
         print(f"- {k}: {b[k][1]}")

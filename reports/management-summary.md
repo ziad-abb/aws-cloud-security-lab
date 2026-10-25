@@ -28,4 +28,4 @@
 
 **Risk position:** 17 risks recorded; **7 rated high before the controls, 0 high after them** (average score 12.3 → 5.8 on 25). Residual risks are owned and tracked in `reports/risk-register.xlsx`.
 
-**Compliance:** controls are mapped to CIS AWS 7.0, ISO/IEC 27001:2022, ISO/IEC 27017 and NIST CSF 2.0. A note covers Moroccan law 09-08 (personal data). Configuration score (CIS): 53 % at the start, 57 % during the tests; a final score after hardening will follow.
+**Compliance:** controls are mapped to CIS AWS 7.0, ISO/IEC 27001:2022, ISO/IEC 27017 and NIST CSF 2.0. A note covers Moroccan law 09-08 (personal data). Configuration score (CIS AWS 7.0): **53 % at the start → 57 % during the tests → 68 % after hardening** (failures 39 → 31).
