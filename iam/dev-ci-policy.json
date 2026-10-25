@@ -5,13 +5,13 @@
       "Sid": "ListDataBucket",
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::seclab-data-111122223333"
+      "Resource": "arn:aws:s3:::seclab-data-ACCOUNT_ID"
     },
     {
       "Sid": "ReadDataObjects",
       "Effect": "Allow",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::seclab-data-111122223333/*"
+      "Resource": "arn:aws:s3:::seclab-data-ACCOUNT_ID/*"
     },
     {
       "Sid": "SelfServiceKeyRotation",
@@ -22,7 +22,7 @@
         "iam:UpdateAccessKey",
         "iam:DeleteAccessKey"
       ],
-      "Resource": "arn:aws:iam::111122223333:user/dev-ci"
+      "Resource": "arn:aws:iam::ACCOUNT_ID:user/dev-ci"
     }
   ]
 }

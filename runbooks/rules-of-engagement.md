@@ -11,7 +11,7 @@ Purpose: write down **before** attacking what is allowed, against what, from whe
 ## 1. Scope
 
 **In scope**
-- AWS account **111122223333**, region **eu-north-1**, resources created by this repo's Terraform (tagged `Project=seclab`) plus the `dev-ci` IAM user created for S2.
+- The lab AWS account (ID redacted in this repo; get it with `aws sts get-caller-identity --query Account --output text`), region **eu-north-1**, resources created by this repo's Terraform (tagged `Project=seclab`) plus the `dev-ci` IAM user created for S2.
 - The lab EC2 instance (S3, IMDSv1 misconfiguration test).
 - My own VMs (Wazuh VM1, Kali VM2) on my laptop.
 

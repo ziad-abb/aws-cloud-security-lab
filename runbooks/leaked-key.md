@@ -70,20 +70,21 @@ For every `CreateAccessKey` whose target user isn't `dev-ci`: deactivate that ke
 $inc = "INC-$(Get-Date -Format yyyyMMdd)-S2"
 $dir = "evidence\raw\$inc"; New-Item -ItemType Directory -Force $dir | Out-Null
 $key = "<LEAKED_KEY_ID>"
+$acct = aws sts get-caller-identity --query Account --output text   # account ID, never hard-coded in the repo
 
 # Management events by key: eu-north-1 (regional APIs) + us-east-1 (IAM)
 aws cloudtrail lookup-events --lookup-attributes AttributeKey=AccessKeyId,AttributeValue=$key --output json > "$dir\events-eu-north-1.json"
 aws cloudtrail lookup-events --region us-east-1 --lookup-attributes AttributeKey=AccessKeyId,AttributeValue=$key --output json > "$dir\events-us-east-1.json"
 
 # Data events (S3 GetObject...) are NOT in event history: read them from the trail bucket
-aws s3 sync "s3://seclab-trail-111122223333/AWSLogs/111122223333/CloudTrail/" "$dir\trail"
+aws s3 sync "s3://seclab-trail-$acct/AWSLogs/$acct/CloudTrail/" "$dir\trail"
 python scripts\trail_events.py "$dir\trail" | Select-String $key | Out-File "$dir\data-events-by-key.txt"
 
 # Prove the trail files were not altered (CloudTrail digest validation)
-aws cloudtrail validate-logs --trail-arn arn:aws:cloudtrail:eu-north-1:111122223333:trail/seclab-trail --start-time <INCIDENT_START_UTC> > "$dir\validate-logs.txt"
+aws cloudtrail validate-logs --trail-arn "arn:aws:cloudtrail:eu-north-1:${acct}:trail/seclab-trail" --start-time <INCIDENT_START_UTC> > "$dir\validate-logs.txt"
 
 # Hash everything collected
-Get-ChildItem $dir -Recurse -File | Get-FileHash -Algorithm SHA256 | Format-Table Hash, Path -AutoSize | Out-File "$dir\SHA256SUMS.txt"
+Get-ChildItem $dir -Recurse -File | Where-Object Name -ne "SHA256SUMS.txt" | Get-FileHash -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  $(Resolve-Path -Relative $_.Path)" } | Set-Content "$dir\SHA256SUMS.txt"
 ```
 On VM1, export the Wazuh alerts for the key:
 ```bash

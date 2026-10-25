@@ -5,13 +5,13 @@
       "Sid": "ListTrailBucket",
       "Effect": "Allow",
       "Action": ["s3:ListBucket", "s3:GetBucketLocation"],
-      "Resource": "arn:aws:s3:::seclab-trail-111122223333"
+      "Resource": "arn:aws:s3:::seclab-trail-ACCOUNT_ID"
     },
     {
       "Sid": "ReadTrailLogFiles",
       "Effect": "Allow",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::seclab-trail-111122223333/AWSLogs/111122223333/*"
+      "Resource": "arn:aws:s3:::seclab-trail-ACCOUNT_ID/AWSLogs/ACCOUNT_ID/*"
     },
     {
       "Sid": "DecryptTrailKeyViaS3Only",
@@ -27,7 +27,7 @@
       "Sid": "ConsumeTrailNotifications",
       "Effect": "Allow",
       "Action": ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueUrl", "sqs:GetQueueAttributes"],
-      "Resource": "arn:aws:sqs:eu-north-1:111122223333:seclab-trail-events"
+      "Resource": "arn:aws:sqs:eu-north-1:ACCOUNT_ID:seclab-trail-events"
     },
     {
       "Sid": "ReadIamEventsFromEventHistory",

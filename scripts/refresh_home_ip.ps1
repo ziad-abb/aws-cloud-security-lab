@@ -1,15 +1,17 @@
 # Run from the repo root when the home IP changes (dynamic ISP IP).
-# 1) re-pins the wazuh-reader IAM policy to the new IP
+# 1) re-pins the wazuh-reader IAM policy to the new IP (fills HOME_IP_CIDR and ACCOUNT_ID at runtime)
 # 2) replaces the "home" line in Wazuh's seclab-known-ips list on VM1 and restarts the manager
 # 3) reminds you to update terraform.tfvars (my_ips)
 param([string]$Vm = "ziad@192.168.222.131")
 
 $ip = (Invoke-RestMethod https://checkip.amazonaws.com).Trim()
 $cidr = "$ip/32"
+$AccountId = aws sts get-caller-identity --query Account --output text
+if (-not $AccountId) { throw "Could not read the account ID (aws sts get-caller-identity)" }
 Write-Host "Current home IP: $cidr"
 
 $tmp = Join-Path $env:TEMP "wr.json"
-(Get-Content iam\wazuh-reader-policy.json -Raw) -replace 'HOME_IP_CIDR', $cidr | Out-File $tmp -Encoding ascii
+(Get-Content iam\wazuh-reader-policy.json -Raw) -replace 'HOME_IP_CIDR', $cidr -replace 'ACCOUNT_ID', $AccountId | Out-File $tmp -Encoding ascii
 aws iam put-user-policy --user-name wazuh-reader --policy-name wazuh-reader-least-priv --policy-document "file://$tmp"
 if ($LASTEXITCODE -ne 0) { Remove-Item $tmp; throw "put-user-policy failed" }
 Remove-Item $tmp

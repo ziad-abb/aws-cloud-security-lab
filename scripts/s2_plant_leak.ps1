@@ -6,6 +6,7 @@
 param([string]$Dir = "$HOME\Documents\aws project\s2-leak")
 
 $ErrorActionPreference = "Stop"
+$AccountId = aws sts get-caller-identity --query Account --output text   # never hard-coded in the repo
 
 # Guard: dev-ci must have no key yet (one leak per run).
 $existing = aws iam list-access-keys --user-name dev-ci --query "AccessKeyMetadata[].AccessKeyId" --output text
@@ -21,7 +22,7 @@ try {
     git config user.email "ci-dev@acme.example"
 
     Set-Content README.md "# acme-ci-pipeline`nBuild and deploy scripts for the Acme web app."
-    Set-Content deploy.sh "#!/bin/sh`n# sync build artifacts`naws s3 ls s3://seclab-data-111122223333/"
+    Set-Content deploy.sh "#!/bin/sh`n# sync build artifacts`naws s3 ls s3://seclab-data-$AccountId/"
     git add README.md deploy.sh
     git commit -q -m "initial pipeline scripts"
 

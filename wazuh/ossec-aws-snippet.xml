@@ -11,7 +11,7 @@
     <run_on_start>yes</run_on_start>
     <skip_on_error>yes</skip_on_error>
     <bucket type="cloudtrail">
-      <name>seclab-trail-111122223333</name>
+      <name>seclab-trail-ACCOUNT_ID</name>  <!-- replace ACCOUNT_ID with your 12-digit account ID on VM1 -->
       <aws_profile>wazuh-reader</aws_profile>
       <regions>eu-north-1</regions>
       <only_logs_after>2026-OCT-23</only_logs_after>
