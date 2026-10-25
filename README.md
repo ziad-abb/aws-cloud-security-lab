@@ -120,4 +120,5 @@ reports/     timelines.xlsx (sanitized run log) · incident reports and Prowler 
 ## Author
 
 **Ziad Abbassi** — 5th-year engineering student, Cybersecurity & Networks, EMSI Rabat (Morocco).
-Looking for a final-year internship (PFE) in incident response, cloud security or GRC. · [LinkedIn](https://www.linkedin.com/in/) <!-- replace with your profile URL -->
+Looking for a final-year internship (PFE) in incident response, cloud security or GRC. · 
+linkedin.com/in/ziad-abbassi
