@@ -91,6 +91,22 @@ Toutes les attaques ont suivi des **[règles d'engagement](runbooks/rules-of-eng
 
 ---
 
+## Rapports (phase 5)
+
+| Document | Contenu |
+|---|---|
+| [Rapport d'incident S2 : clé divulguée + persistance](reports/incidents/INC-20261024-S2-leaked-key.md) | Cycle ISO 27035 complet, chronologie, mesures, ATT&CK, cause racine, actions (en anglais) |
+| [Rapport d'incident S1 : bucket public](reports/incidents/INC-20261024-S1-public-bucket.md) | Exécutions manuelle et automatisée, l'automatisation « non armée » rattrapée par le SIEM |
+| [Rapport d'incident S3 : SSH exposé + force brute](reports/incidents/INC-20261024-S3-ssh-open.md) | SSH par clé uniquement comme mesure compensatoire, confinement automatique en 5,3 s |
+| [Note : IMDSv1 réactivé](reports/incidents/NOTE-20261024-MIMDS.md) | Erreur corrigée en 6,4 s |
+| [Registre des risques](reports/risk-register.xlsx) | 17 risques, notation 5×5 inhérent / résiduel avec preuves mesurées (7 élevés → 0) |
+| [Correspondance des contrôles](reports/grc/control-mapping.md) | 21 contrôles → CIS AWS 7.0, ISO/IEC 27001:2022, ISO/IEC 27017, NIST CSF 2.0 |
+| [Note loi 09-08](reports/grc/law-09-08-note.md) | Obligations sur les données personnelles appliquées aux incidents |
+| [Synthèse direction](reports/management-summary.fr.md) · [EN](reports/management-summary.md) | Une page pour un lecteur non technique |
+| [Journal d'exécution](reports/timelines.xlsx) | Horodatages de chaque exécution et temps de détection / confinement calculés (anonymisé) |
+
+---
+
 ## Organisation du dépôt
 
 ```
@@ -100,7 +116,7 @@ wazuh/       local_rules.xml (21 règles) · collecteur IAM · lecteur de traces
 iam/         politiques à moindre privilège pour le lecteur de journaux et l'utilisateur CI
 scripts/     données fictives, analyse des traces, tests Lambda sur LocalStack, utilitaires IP, mise en place de la fuite S2
 runbooks/    leaked-key.md (ISO 27035) · rules-of-engagement.md
-reports/     timelines.xlsx (journal d'exécution anonymisé) · rapports d'incident et synthèses Prowler (phase 5)
+reports/     incidents/ · grc/ · risk-register.xlsx · synthèse direction · timelines.xlsx (journal anonymisé)
 ```
 
 ---

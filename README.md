@@ -91,6 +91,22 @@ All attack runs followed written **[rules of engagement](runbooks/rules-of-engag
 
 ---
 
+## Reports (Phase 5)
+
+| Document | What it contains |
+|---|---|
+| [Incident report S2: leaked key + persistence](reports/incidents/INC-20261024-S2-leaked-key.md) | Full ISO 27035 lifecycle, timeline, metrics, ATT&CK, root cause, actions |
+| [Incident report S1: public bucket](reports/incidents/INC-20261024-S1-public-bucket.md) | Manual vs automated runs, the "automation not armed" miss caught by the SIEM |
+| [Incident report S3: SSH exposed + brute force](reports/incidents/INC-20261024-S3-ssh-open.md) | Key-only SSH as a compensating control, 5.3 s automated containment |
+| [Note: IMDSv1 re-enabled](reports/incidents/NOTE-20261024-MIMDS.md) | Misconfiguration fixed in 6.4 s |
+| [Risk register](reports/risk-register.xlsx) | 17 risks, 5×5 inherent vs residual scoring with measured evidence (7 high → 0 high) |
+| [Control mapping](reports/grc/control-mapping.md) | 21 controls → CIS AWS 7.0, ISO/IEC 27001:2022, ISO/IEC 27017, NIST CSF 2.0 |
+| [Moroccan law 09-08 note](reports/grc/law-09-08-note.md) | Personal-data obligations applied to the incidents |
+| [Management summary](reports/management-summary.md) · [FR](reports/management-summary.fr.md) | One page for non-technical readers |
+| [Run log](reports/timelines.xlsx) | Every run's timestamps and computed detection/containment times (sanitized) |
+
+---
+
 ## Repository layout
 
 ```
@@ -100,7 +116,7 @@ wazuh/       local_rules.xml (21 rules) · IAM poller · SQS trail reader (+ sys
 iam/         least-privilege policies for the log reader and the CI user
 scripts/     fake data, trail analysis, LocalStack Lambda tests, IP helpers, S2 leak planting
 runbooks/    leaked-key.md (ISO 27035) · rules-of-engagement.md
-reports/     timelines.xlsx (sanitized run log) · incident reports and Prowler summaries (Phase 5)
+reports/     incidents/ · grc/ · risk-register.xlsx · management summary · timelines.xlsx (sanitized run log)
 ```
 
 ---
