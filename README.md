@@ -32,6 +32,13 @@ A hands-on cloud security project: I built a small fictional company on **real A
 
 ## Architecture
 
+![Architecture](docs/architecture.png)
+
+Same design on Oracle Cloud: [Oracle Cloud (OCI) equivalents](docs/oci-equivalents.md)
+
+<details><summary>Text version (Mermaid)</summary>
+
+
 ```mermaid
 flowchart LR
   subgraph AWS["AWS account · eu-north-1"]
@@ -58,6 +65,8 @@ flowchart LR
   K -->|attacks| S3
   K -->|attacks| EC2
 ```
+
+</details>
 
 **Why it is built this way**
 - **No GuardDuty / Security Hub** (not available on the account's plan) → all detections are written by hand as Wazuh rules on CloudTrail data.
@@ -131,7 +140,7 @@ reports/     incidents/ · grc/ · risk-register.xlsx · management summary · t
 - [x] Phase 3 — automated containment (3 Lambdas) + IR runbook + rules of engagement
 - [x] Phase 4 — live attack runs, measured and evidenced
 - [x] Phase 5 — incident reports (ISO 27035), risk register, CIS / ISO 27001 / ISO 27017 / NIST CSF mapping, Moroccan law 09-08 note, final hardening + Prowler #3 (CIS 67.71 %)
-- [ ] Phase 6 — final publication
+- [ ] Phase 6 — final publication (architecture diagram and OCI equivalents done)
 
 ---
 

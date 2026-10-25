@@ -32,6 +32,13 @@ Un projet pratique de sécurité cloud : j'ai construit une petite entreprise fi
 
 ## Architecture
 
+![Architecture](docs/architecture.png)
+
+Même conception sur Oracle Cloud : [Équivalents Oracle Cloud (OCI)](docs/oci-equivalents.md) (en anglais)
+
+<details><summary>Version texte (Mermaid)</summary>
+
+
 ```mermaid
 flowchart LR
   subgraph AWS["Compte AWS · eu-north-1"]
@@ -58,6 +65,8 @@ flowchart LR
   K -->|attaques| S3
   K -->|attaques| EC2
 ```
+
+</details>
 
 **Pourquoi cette conception**
 - **Pas de GuardDuty / Security Hub** (indisponibles avec l'offre du compte) → toutes les détections sont écrites à la main sous forme de règles Wazuh sur les données CloudTrail.
@@ -131,7 +140,7 @@ reports/     incidents/ · grc/ · risk-register.xlsx · synthèse direction · 
 - [x] Phase 3 — confinement automatisé (3 Lambda) + runbook de réponse + règles d'engagement
 - [x] Phase 4 — attaques réelles, mesurées et documentées
 - [x] Phase 5 — rapports d'incident (ISO 27035), registre des risques, correspondance CIS / ISO 27001 / ISO 27017 / NIST CSF, note loi 09-08, durcissement final + Prowler n° 3 (CIS 67,71 %)
-- [ ] Phase 6 — publication finale
+- [ ] Phase 6 — publication finale (schéma d'architecture et équivalents OCI faits)
 
 ---
 
